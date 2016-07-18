@@ -8,12 +8,11 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 # General Public License for more details.
-
 import sys
 import unicodedata
 
 
-def print_unicode_table(word):
+def print_unicode_table(words):
     print("decimal   hex   chr  {0:^40}".format("name"))
     print("-------  -----  ---  {0:-<40}".format(""))
 
@@ -23,18 +22,19 @@ def print_unicode_table(word):
     while code < end:
         c = chr(code)
         name = unicodedata.name(c, "*** unknown ***")
-        if word is None or word in name.lower():
+        if words != None:
+            words = [item.upper() for item in words]
+        if words is None or sorted(list(set(words) & set(name.split()))) == sorted(words):
             print("{0:7}  {0:5X}  {0:^3c}  {1}".format(
-                  code, name.title()))
+                    code, name.title()))
         code += 1
 
-
-word = None
+words = None
 if len(sys.argv) > 1:
     if sys.argv[1] in ("-h", "--help"):
         print("usage: {0} [string]".format(sys.argv[0]))
-        word = 0
+        words = 0
     else:
-        word = sys.argv[1].lower()
-if word != 0:
-    print_unicode_table(word)
+        words = sys.argv[1:]
+if words != 0:
+    print_unicode_table(words)
