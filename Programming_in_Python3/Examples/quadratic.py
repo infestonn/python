@@ -47,6 +47,31 @@ else:
 
 equation = ("{0}x\N{SUPERSCRIPT TWO} + {1}x + {2} = 0"
             " \N{RIGHTWARDS ARROW} x = {3}").format(a, b, c, x1)
+if a < 0:
+    equation = ("-{0}x\N{SUPERSCRIPT TWO} + {1}x + {2} = 0"
+            " \N{RIGHTWARDS ARROW} x = {3}").format(abs(a), b, c, x1)
+if b < 0:
+    equation = ("{0}x\N{SUPERSCRIPT TWO} - {1}x + {2} = 0"
+            " \N{RIGHTWARDS ARROW} x = {3}").format(a, abs(b), c, x1)
+if c < 0:
+    equation = ("{0}x\N{SUPERSCRIPT TWO} + {1}x - {2} = 0"
+            " \N{RIGHTWARDS ARROW} x = {3}").format(a, b, abs(c), x1)
+if a < 0 and b < 0:
+    equation = ("-{0}x\N{SUPERSCRIPT TWO} - {1}x + {2} = 0"
+            " \N{RIGHTWARDS ARROW} x = {3}").format(abs(a), abs(b), c, x1)
+if a < 0 and c < 0:
+    equation = ("-{0}x\N{SUPERSCRIPT TWO} + {1}x - {2} = 0"
+            " \N{RIGHTWARDS ARROW} x = {3}").format(abs(a), b, abs(c), x1)
+if b < 0 and c < 0:
+    equation = ("{0}x\N{SUPERSCRIPT TWO} - {1}x - {2} = 0"
+            " \N{RIGHTWARDS ARROW} x = {3}").format(a, abs(b), abs(c), x1)
+if a < 0 and b < 0 and c < 0:
+    equation = ("-{0}x\N{SUPERSCRIPT TWO} - {1}x - {2} = 0"
+            " \N{RIGHTWARDS ARROW} x = {3}").format(abs(a), abs(b), abs(c), x1)
+
+
 if x2 is not None:
     equation += " or x = {0}".format(x2)
+elif x2 is not None and x2 < 0:
+    equation += " or x = -{0}".format(abs(x2))
 print(equation)
