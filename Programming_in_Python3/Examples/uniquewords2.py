@@ -22,5 +22,5 @@ for filename in sys.argv[1:]:
             word = word.strip(strip)
             if len(word) > 2:
                 words[word] += 1
-for word in sorted(words):
+for word in sorted(words, key=lambda val: words.get(val)):
     print("'{0}' occurs {1} times".format(word, words[word]))
