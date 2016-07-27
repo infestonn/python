@@ -58,22 +58,27 @@ def generate_username(fields, usernames):
 
 
 def print_users(users):
-    namewidth = 32
+    namewidth = 17
     usernamewidth = 9
 
-    print("{0:<{nw}} {1:^6} {2:{uw}}".format(
+    print("{0:<{nw}} {1:^6} {2:{uw}} {0:<{nw}} {1:^6} {2:{uw}}".format(
           "Name", "ID", "Username", nw=namewidth, uw=usernamewidth))
-    print("{0:-<{nw}} {0:-<6} {0:-<{uw}}".format(
+    print("{0:-<{nw}} {0:-<6} {0:-<{uw}} {0:-<{nw}} {0:-<6} {0:-<{uw}}".format(
           "", nw=namewidth, uw=usernamewidth))
-
+    name = []
     for key in sorted(users):
         user = users[key]
         initial = ""
         if user.middlename:
             initial = " " + user.middlename[0]
-        name = "{0.surname}, {0.forename}{1}".format(user, initial)
-        print("{0:.<{nw}} ({1.id:4}) {1.username:{uw}}".format(
-              name, user, nw=namewidth, uw=usernamewidth))
-
+        name.append("{0.surname} {0.forename}{1}, ({2.id:4}), {2.username:{uw}}".format(user, initial, user, uw=usernamewidth).split(","))
+    page = 0
+    for i in range(len(name)-1):
+        print("{0[0]:.<{nw}.{nw}}{0[1]}{0[2]} {1[0]:.<{nw}.{nw}}{1[1]}{1[2]}".format( name[i], name[i+1], nw=namewidth, uw=usernamewidth))
+        page += 1
+        if page % 64 == 0:
+            print("{0:<{nw}} {1:^6} {2:{uw}} {0:<{nw}} {1:^6} {2:{uw}}".format("Name", "ID", "Username", nw=namewidth, uw=usernamewidth))
+            print("{0:-<{nw}} {0:-<6} {0:-<{uw}} {0:-<{nw}} {0:-<6} {0:-<{uw}}".format("", nw=namewidth, uw=usernamewidth))
+    #print(name)
 
 main()
