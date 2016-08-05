@@ -56,40 +56,105 @@ def get_integer(message, name="integer", default=None, minimum=0,
 def main():
     dir_list = os.listdir(".")
     dir_list_lst = list()
-    for i in dir_list:
+    for i in sorted(dir_list):
         if i.endswith(".lst"):
             dir_list_lst.append(i)
+    for i in sorted(dir_list_lst):
+        print ("{0}.{1}".format(sorted(dir_list_lst).index(i)+1, i))
     if dir_list_lst:
-        for i in dir_list_lst:
-            print ("{0}.{1}".format(dir_list_lst.index(i)+1, i))
-        filename = get_integer("Choose file from 0[new file] to {0}".format(len(dir_list_lst)), default=1)
-        if not filename:
-        	get_name()
-        	get_option(("[A]dd [Q]uit [a]: "), add='a', quit='q', default='a')
-        else:
-            fh = None
-            filename = dir_list_lst[filename-1]
-            if filename in dir_list_lst:
-                fh = open(filename)
-                if os.stat(filename).st_size == 0:
-                    print("-- no items are in the list --")
-                    if get_option(("[A]dd [Q]uit [a]: "), add='a', quit='q', default='a') == "a":
-                    	add_string(filename, get_string("Add item"))
-                    elif get_option(("[A]dd [Q]uit [a]: "), add='a', quit='q', default='a') == "q":
-                    	print("Exiting...")
-                else:
-                    list_file(filename)
-                    option = get_option(("[A]dd [D]elete [S]ave [Q]uit [a]: "), add='a', quit='q', delete='d', save='s', default='a')
-                    if  option == 'a':
-                        add_string(filename, get_string("Add item"))
-                    elif option == "q":
-                        print("Exiting...")
-                fh.close()
+        try:
+            file_number = get_integer("Choose file from 0(new file) to {0}".format(len(dir_list_lst)), maximum=len(dir_list_lst), default=1)
+            filename = dir_list_lst[file_number-1] if file_number else get_name()
+            cur_list = load_list(filename) if file_number else list()
+            if cur_list:
+                modified = 0
+                list_list(cur_list)
+                while True:
+	                option = get_option(("[A]dd [Q]uit [a]: "), add='a', quit='q', default='a') if not modified else get_option(("[A]dd [D]elete [S]ave [Q]uit [a]: "), add='a', quit='q', delete='d', save='s', default='a')
+	                if  option == 'a':
+	                	cur_list.append(get_string("Add item"))
+	                	modified = 1
+	                	list_list(cur_list)
+	                elif option == 's':
+	                	write_file(filename, cur_list)
+	                elif option == 'd':
+	                	delete_item = get_integer("Delete item number (or 0 to cancel)", maximum=len(cur_list))
+	                	if delete_item:
+	                		cur_list = del_item(cur_list, delete_item)
+	                		list_list(sorted(cur_list))
+	                	else:
+	                		next
+	                elif option == 'q':
+	                	if modified:
+	                		answer = get_string("Save unsaved changes (y/n)", default="y")
+	                		if answer.lower() == 'y':
+	                			write_file(filename, cur_list)
+	                			modified = 0
+	                		elif answer.lower() == 'n':
+	                			break
+	                	else:
+	                		break
+            else:
+                print("-- no items are in the list --")
+                modified = 0
+                while True:
+	                option = get_option(("[A]dd [Q]uit [a]: "), add='a', quit='q', default='a') if not modified else get_option(("[A]dd [D]elete [S]ave [Q]uit [a]: "), add='a', quit='q', delete='d', save='s', default='a')
+	                if  option == 'a':
+	                	cur_list.append(get_string("Add item"))
+	                	modified = 1
+	                	list_list(cur_list)
+	                elif option == 's':
+	                	write_file(filename, cur_list)
+	                	modified = 0
+	                elif option == 'd':
+	                	delete_item = get_integer("Delete item number (or 0 to cancel)", maximum=len(cur_list))
+	                	if delete_item:
+	                		cur_list = del_item(cur_list, delete_item)
+	                		list_list(sorted(cur_list))
+	                	else:
+	                		next
+	                elif option == 'q':
+	                	if modified:
+	                		answer = get_string("Save unsaved changes (y/n)", default="y")
+	                		if answer.lower() == 'y':
+	                			write_file(filename, cur_list)
+	                			modified = 0
+	                		elif answer.lower() == 'n':
+	                			break
+	                	else:
+	                		break
+        except:
+            pass
     else:
-        get_name()
-        get_option(("[A]dd [Q]uit [a]: "), add='a', quit='q', default='a')
-    
-
+        filename = get_name()
+        cur_list = []
+        modified = 0
+        list_list(cur_list)
+        while True:
+            option = get_option(("[A]dd [Q]uit [a]: "), add='a', quit='q', default='a') if not modified else get_option(("[A]dd [D]elete [S]ave [Q]uit [a]: "), add='a', quit='q', delete='d', save='s', default='a')
+            if  option == 'a':
+            	cur_list.append(get_string("Add item"))
+            	modified = 1
+            	list_list(cur_list)
+            elif option == 's':
+            	write_file(filename, cur_list)
+            elif option == 'd':
+            	delete_item = get_integer("Delete item number (or 0 to cancel)", maximum=len(cur_list))
+            	if delete_item:
+            		cur_list = del_item(cur_list, delete_item)
+            		list_list(sorted(cur_list))
+            	else:
+            		next
+            elif option == 'q':
+            	if modified:
+            		answer = get_string("Save unsaved changes (y/n)", default="y")
+            		if answer.lower() == 'y':
+            			write_file(filename, cur_list)
+            			modified = 0
+            		elif answer.lower() == 'n':
+            			break
+            	else:
+            		break
 
 def get_name():
     message = "Choose filename: "
@@ -111,7 +176,7 @@ def get_option(args, add="", delete="", quit="", save="", default="a"):
 		try:
 			option = input("{0}".format(args))
 			if option.lower() == '':
-				return default.lower
+				return default.lower()
 			if option.lower() not in add and option.lower() not in delete and option.lower() not in quit and option.lower() not in save:
 				raise InvalidKey("ERROR: invalid choice--enter one of: {0}{1}{2}{3}{4}{5}{6}{7}".format(add.upper(), add, delete.upper(), delete, quit.upper(), quit, save.upper(), save))
 			else:
@@ -120,31 +185,21 @@ def get_option(args, add="", delete="", quit="", save="", default="a"):
 			print(err)
 
 
-def add_string(filename, string):
-    fh = None
-    try:
-        fh = open(filename, "a")
-        fh.write(string+"\n")
-    except EnvironmentError as err:
-        print("ERROR", err)
-    else:
-        print("Added", string)
-    finally:
-        if fh is not None:
-            fh.close()
-
-
 def list_file(filename):
     fh = None
     try:
         fh = open(filename, "r")
-        for i, line in enumerate(fh, 1):
+        for i, line in enumerate(sorted(fh), 1):
             print("{0}.{1}".format(i, line))
     except EnvironmentError as err:
         print("ERROR", err)
     finally:
         if fh is not None:
             fh.close()
+
+def list_list(lst):
+	for i, line in enumerate(sorted(lst), 1):
+		print("{0}.{1}".format(i, line))
 
 def load_list(filename):
     fh = None
@@ -164,9 +219,19 @@ def del_item(lst, number_to_delete):
 	del lst[number_to_delete-1]
 	return lst
 
+def write_file(filename, lst):
+    fh = None
+    l = list()
+    try:
+        fh = open(filename, "w+")
+        for i in lst:
+        	fh.write(i+"\n")
+        print("Saved {0} items to {1}".format(len(lst), filename))
+    except EnvironmentError as err:
+        print("ERROR", err)
+    finally:
+        if fh is not None:
+            fh.close()
+
 
 main()
-#gg = get_option(("[A]dd [Q]uit [a]: "), add='a', quit='q',save='s', default='a')
-#add_string(get_name(), get_string("Add item"))
-#list_file(get_name())
-#print(load_list("m.lst"))
