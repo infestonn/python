@@ -12,7 +12,7 @@ def main():
 						help='show hidden files')
 	parser.add_option("-m", "--modified", action="store_true", dest="modified",
 						help='show last modified date/time')
-	parser.add_option("-O", "--order", type='choice', choices=['name', 'n', 'modified', 'm', 'size', 's'], dest="order", default="name",
+	parser.add_option("-o", "--order", type='choice', choices=['name', 'n', 'modified', 'm', 'size', 's'], dest="order", default="name",
 						help="order by ('name', 'n', 'modified', 'm', 'size', 's')[default: name]")
 	parser.add_option("-r", "--recursive", action="store_true", dest="recursive",
 						help='recurse into subdirectories [default: off]')
@@ -25,7 +25,6 @@ def main():
 		for i in args:
 			if not i.endswith('/'):
 				args[args.index(i)] += "/"
-	print(args)
 
 	if opts.order in ['m', 'modified']:
 		mod = 'date'
@@ -57,23 +56,45 @@ def main():
 	else:	
 		for i in args:
 			for root, dirs, files in os.walk(i):
-				for n in dirs:
-					info = {
-					'name': root + n,
-					'size': (os.path.getsize(root + (n if root.endswith('/') else '/'+n))), 
-					'date': (time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(os.path.getmtime(root + (n if root.endswith('/') else '/'+n)))))
-					}
-					line_keys.append(info)
-				for n in files:
-					info = {
-					'name': root + n,
-					'size': (os.path.getsize(root + (n if root.endswith('/') else '/'+n))), 
-					'date': (time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(os.path.getmtime(root + (n if root.endswith('/') else '/'+n)))))
-					}
-					line_keys.append(info)
-				print(root)
-				print(dirs)
-				print(files)
+				gen1 =  (x for x in dirs)
+				if opts.hidden:
+					for n in gen1:
+						info = {
+						'name': root + (n if root.endswith('/') else '/'+n),
+						'size': (os.path.getsize(root + (n if root.endswith('/') else '/'+n))),
+						'date': (time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(os.path.getmtime(root + (n if root.endswith('/') else '/'+n)))))
+						}
+						line_keys.append(info)
+					#gen =  (x for x in files if os.path.isfile(x) or os.path.isdir(x))
+					for n in files:
+						info = {
+						'name': root + (n if root.endswith('/') else '/'+n),
+						'size': (os.path.getsize(root + (n if root.endswith('/') else '/'+n))),
+						'date': (time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(os.path.getmtime(root + (n if root.endswith('/') else '/'+n)))))
+						}
+						line_keys.append(info)
+				else:
+					for n in gen1:
+						if n.startswith('.'):
+							continue
+						else:
+							info = {
+							'name': root + (n if root.endswith('/') else '/'+n),
+							'size': (os.path.getsize(root + (n if root.endswith('/') else '/'+n))),
+							'date': (time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(os.path.getmtime(root + (n if root.endswith('/') else '/'+n)))))
+							}
+							line_keys.append(info)
+					for n in files:
+						if n.startswith('.'):
+							continue
+						else:
+							info = {
+							'name': root + (n if root.endswith('/') else '/'+n),
+							'size': (os.path.getsize(root + (n if root.endswith('/') else '/'+n))),
+							'date': (time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(os.path.getmtime(root + (n if root.endswith('/') else '/'+n)))))
+							}
+							line_keys.append(info)
+
 	# print(line_keys)
 
 	if line_keys:
